@@ -1,3 +1,6 @@
+// Given a list of strings, this work finds the shortest superstring that contains all the strings. 
+// Idea based on Traveling Salesman Problem. DP solution was applied on this NP hard problem. The overall cost is O(n^2 * 2^n).
+
 class Solution {
 public:
     string shortestSuperstring(vector<string>& A) {
