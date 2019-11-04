@@ -1,0 +1,46 @@
+// Given a list of coordinates given in syntax (Li, Ri, Hi) Indicating left coordinate, right coordinate, height of a buiding, output
+// the skyline of the buildings.
+
+class MyCompare {
+public:
+    bool operator () (pair<int, int>& bld1, pair<int, int>& bld2) {
+        return bld1.first > bld2.first;
+    }
+};
+
+class Solution {
+public:
+    vector<pair<int, int>> getSkyline(vector<vector<int>>& buildings) {
+        multiset<int> cur_buildings_height; // Stores the height while scanning. 
+        priority_queue<pair<int, int>, vector<pair<int, int>>, MyCompare> cur_buildings; // Stores (Ri, Hi) in Ri ascending order
+        int cur_building_idx = 0, cur_X = 0, prev_height = -1; 
+        vector<pair<int, int>> res;
+        while (cur_building_idx < buildings.size() || !cur_buildings.empty()) {
+            // Careful about the last output
+            if (cur_building_idx >= buildings.size()) {
+                cur_X = cur_buildings.top().first;
+            } else if (cur_buildings.empty()) {
+                cur_X = buildings[cur_building_idx][0];
+            } else {cur_X = min(buildings[cur_building_idx][0], cur_buildings.top().first);}
+            
+            // Push all buildings starting from the current position to the checklist.
+            while (cur_building_idx < buildings.size() && buildings[cur_building_idx][0] == cur_X) {
+                cur_buildings.push(make_pair(buildings[cur_building_idx][1], buildings[cur_building_idx][2]));
+                cur_buildings_height.insert(buildings[cur_building_idx][2]);
+                cur_building_idx++;
+            }
+            while (!cur_buildings.empty() && cur_buildings.top().first == cur_X) {
+                cur_buildings_height.erase(cur_buildings_height.find(cur_buildings.top().second));
+                cur_buildings.pop();
+            }
+            if (cur_buildings_height.empty()) {
+                res.push_back(make_pair(cur_X, 0));
+                prev_height = 0;
+            } else if (*cur_buildings_height.rbegin() != prev_height) {
+                res.push_back(make_pair(cur_X, *cur_buildings_height.rbegin()));
+                prev_height = *cur_buildings_height.rbegin();
+            }
+        }
+        return res;
+    }
+};
