@@ -1,0 +1,55 @@
+class Solution {
+public:
+    string shortestSuperstring(vector<string>& A) {
+        int n = A.size();
+        if (n == 0) {return "";}
+        if (n == 1) {return A[0];}
+        
+        vector<vector<int>> overlap(n, vector<int>(n));
+        vector<vector<string>> dp(1<<n, vector<string>(n));
+        
+        // Initialize distance matrix
+        for (int i = 0; i < n; ++i) {
+            int l1 = A[i].length();
+            for (int j = 0; j < n; ++j) {
+                if (i != j) {
+                    int l2 = A[j].length();
+                    for (int k = min(l1, l2); k >= 0; --k) {
+                        if (A[i].substr(l1 - k) == A[j].substr(0, k)) {
+                            overlap[i][j] = k;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // DP. dp[i][j] stores shortest string containing all words masked by bit form i ending by word j. e.g. [1,1,1,...,1,1,1][0] contains the shortest superstring containing all the words ending by A[0]. 
+        // Update dp[i][j] by iterate through all possible children of bit form i, and choose the path of least weight after appending A[j].
+        for (int i = 0; i < n; ++i) {
+            dp[1<<i][i] = A[i];
+        }
+        for (int i = 1; i < (1<<n); ++i) {
+            for (int j = 0; j < n; ++j) {
+                // Check if ending word is in the mask.
+                if ((i & (1<<j)) != 0) {
+                    // Check all words in current mask. Find the shortest string containing words except A[j] ending with A[k], and append A[j]. See if it is the shortest.
+                    for (int k = 0; k < n; ++k) {
+                        if ((i & (1<<k)) != 0 && k != j) {
+                            string tmp = dp[i^(1<<j)][k] + A[j].substr(overlap[k][j]);
+                            if (dp[i][j].empty() || dp[i][j].length() > tmp.length()) {dp[i][j] = tmp;}
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Now retrieve answer by iterate through dp[1<<n-1] and choose the shortest one;
+        int last = (1<<n) - 1;
+        string ans = dp[last][0];
+        for (int i = 1; i < n; ++i) {
+            ans = (ans.length() > dp[last][i].length() ? dp[last][i] : ans);
+        }
+        return ans;
+    }
+};
