@@ -1,0 +1,29 @@
+// Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number on it represented by array nums. 
+// You are asked to burst all the balloons. If the you burst balloon i you will get nums[left] * nums[i] * nums[right] coins. 
+// Here left and right are adjacent indices of i. After the burst, the left and right then becomes adjacent.
+
+class Solution {
+public:
+    int maxCoins(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) {return 0;}
+        vector<int> nums_bdr(n + 2, 1);
+        for (int i = 1; i < n + 1; ++i) {nums_bdr[i] = nums[i - 1];}
+        
+        // Use dp back track. dp[i][j] stores the maximum coins to burst all balloons from i to j. 
+        vector<vector<int>> dp(n, vector<int>(n, 0));
+        for (int k = 0; k < n; ++k) {
+            for (int left = 0; left < n - k; ++left) {
+                int right = left + k;
+                for (int i = left; i <= right; ++i) {
+                    int tmp = nums_bdr[left] * nums[i] * nums_bdr[right + 2];
+                    if (i - 1 >= left) {tmp += dp[left][i - 1];}
+                    if (i + 1 <= right) {tmp += dp[i + 1][right];}
+                    dp[left][right] = max(dp[left][right], tmp);
+                    //dp[left][right] = max(dp[left][right], nums_bdr[left] * nums[i] * nums_bdr[right + 2] + (i - 1 < left) ? 0 : dp[left][i - 1] + (i + 1 > right) ? 0 : dp[i + 1][right]);
+                }
+            }
+        }
+        return dp[0][n - 1];
+    }
+};
