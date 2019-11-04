@@ -1,0 +1,71 @@
+// Given two sorted arrays, find the median.
+// Binary search on the index to devide the two arrays into two parts. 
+
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        int m = nums1.size(), n = nums2.size(), sum = m+n;
+        int small = (m+n-1)/2, large = (m+n)/2, mid = (m+n+1)/2;
+        double toReturn;
+        if (nums1.size() == 0) {
+            toReturn = (nums2[small] + nums2[large])/2.0;
+            return toReturn;
+        }
+        if (nums2.size() == 0) {
+            toReturn = (nums1[small] + nums1[large])/2.0;
+            return toReturn;
+        }
+        
+        if (nums1.size()>nums2.size()) {
+            vector<int> temp = nums1;
+            nums1 = nums2;
+            nums2 = temp;
+        }
+        m = nums1.size();
+        n = nums2.size();
+        
+        int iMin = 0, iMax = m, curr, curr2;
+        if (m==1&&n==1) return (nums1[0]+nums2[0])/2.0;
+        else if (m==1){
+            if (n%2==0) {
+                if (nums1[0]<nums2[n/2-1]) return (double)nums2[n/2-1];
+                else  if (nums1[0]>nums2[n/2]) return (double)nums2[n/2];
+                else return (double)nums1[0];
+            } else {
+                if (nums1[0]<nums2[(n-3)/2]) return (nums2[(n-3)/2]+nums2[(n-1)/2])/2.0;
+                else  if (nums1[0]>nums2[(n+1)/2]) return (nums2[(n+1)/2]+nums2[(n-1)/2])/2.0;
+                else return (nums1[0]+nums2[(n-1)/2])/2.0;
+            }
+        }
+        while (iMax >= iMin) {
+            curr = (iMin + iMax) / 2;
+            curr2 = mid - curr;
+            if (curr==0) {
+                if (m==n) {
+                    toReturn = (nums1[0]+nums2[n-1])/2.0;
+                    return toReturn;
+                } else {
+                    toReturn = (std::min(nums1[0],nums2[small]) + std::min(nums1[0],nums2[large]))/2.0;
+                    return toReturn;
+                }
+            } else if (curr==m) {
+                if (m==n) {
+                    toReturn = (nums1[m-1]+nums2[0])/2.0;
+                    return toReturn;
+                } else {
+                    small = (n-m-1)/2;
+                    large = (n-m)/2;
+                    toReturn = (std::max(nums1[m-1],nums2[small]) + std::max(nums1[m-1],nums2[large]))/2.0;
+                    return toReturn;
+                }
+            } 
+            
+            if (nums1[curr-1]<=nums2[curr2] && nums2[curr2-1]<=nums1[curr]) {
+                if (sum%2==1) toReturn = (double) std::max(nums1[curr-1],nums2[curr2-1]);
+                else if (sum%2==0) toReturn = (std::max(nums1[curr-1],nums2[curr2-1]) + std::min(nums1[curr],nums2[curr2]))/2.0;
+                return toReturn;
+            } else if (nums1[curr-1]>nums2[curr2]) iMax = curr;
+            else iMin = curr+1;
+        }     
+    }
+};
