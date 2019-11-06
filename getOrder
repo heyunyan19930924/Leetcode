@@ -40,4 +40,7 @@ public vector<int> getOrder(vector<vector<int>>& input) {
     }
     return res;
     }
+    
+    // For 2d cases where given data are in triplet format (n1, n2, d) where d corresponds to direction, either left, right, up and down.
+    // We can do two 1d getOrder and randomly assign coordinates to nodes in each dimension. Then conbine x and y coordinates for each node.
 };
