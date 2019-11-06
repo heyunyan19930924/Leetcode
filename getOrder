@@ -1,0 +1,43 @@
+// Suppose input are in tuples (n1, n2), meaning that id1 is to the left of id2. Come up with one solution to the array. 
+// If no solution, an empty array will be returned.
+// Consider a digraph. Edge from n1 to n2 means n1 is to the left of n2. Use BFS to search each from the top level down. 
+// Push answer to the res only when the current node did not appear any more as the right node. 
+
+class solutions {
+public vector<int> getOrder(vector<vector<int>>& input) {
+    unordered_map<int, vector<int>> connected; // connected stores all elements to the right of the key node.
+    unordered_map<int, int> appeared_count; // appeared_count counts how many times a node appears on the right. We only care about the last time a node appears on the right.
+    queue<int> search;
+    vector<int> res;
+    for (vector<int> tuples : input) {
+        connected[tuples[0]].push_back(tuples[1]);
+        appeared_count[tuples[1]]++;
+    } 
+    for (auto p : connected) {
+        // Add nodes that never appeared on the right side to the search queue as root.
+        if (appeared_count(p.first) == appeared_count.end()) {
+            search.push(p.first);
+        }
+    }
+    while (!search.empty()) {
+        int cur = search.front();
+        search.pop();
+        appeared_count[cur]--;
+        If (appeared_count[cur] > 0) {
+            continue;
+        }
+        res.push_back(cur);
+        for (int i : connected[cur]) {
+            search.push(i);
+        }
+    }
+    // If not all elements in appeared_count are <= 0, we have a loop in ourgraph. Then there will not be an answer.
+    For (auto p : appeared_count) {
+        if (p.second > 0) {
+            res.clear();
+            return res;
+        }
+    }
+    return res;
+    }
+};
