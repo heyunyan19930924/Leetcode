@@ -1,0 +1,92 @@
+/*
+You are asked to cut off trees in a forest for a golf event. The forest is represented as a non-negative 2D map, in this map:
+
+0 represents the obstacle can't be reached.
+1 represents the ground can be walked through.
+The place with number bigger than 1 represents a tree can be walked through, and this positive number represents the tree's height.
+ 
+
+You are asked to cut off all the trees in this forest in the order of tree's height - always cut off the tree with lowest height first. And after cutting, the original place has the tree will become a grass (value 1).
+
+You will start from the point (0, 0) and you should output the minimum steps you need to walk to cut off all the trees. If you can't cut off all the trees, output -1 in that situation.
+
+You are guaranteed that no two trees have the same height and there is at least one tree needs to be cut off.
+
+Example 1:
+
+Input: 
+[
+ [1,2,3],
+ [0,0,4],
+ [7,6,5]
+]
+Output: 6
+*/
+
+// Idea: Sort trees by height, and then for each step, compute pairwise distance by BFS search.
+
+class Solution {
+private:
+    vector<vector<int>> forestMap;
+    int m, n;
+    const int dir[4][2] = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+public:
+    int cutOffTree(vector<vector<int>>& forest) {
+        forestMap = forest;
+        m = forest.size();
+        n = forest[0].size();
+        vector<vector<int>> pq;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (forest[i][j] > 1) {
+                    pq.push_back({forest[i][j], i, j});
+                }
+            }
+        }
+        sort(pq.begin(), pq.end());
+        int total_dist = 0; 
+        int cur = 0;
+        for (int i = 0; i < pq.size(); ++i) {
+            int next = pq[i][1] * n + pq[i][2];
+            int cur_dist = steps(cur, next);
+            if (cur_dist == -1) {return -1;}
+            total_dist += cur_dist;
+            cur = next;
+        }
+        return total_dist;
+    }
+    
+    // Create function that computes pairwise closest distance. Returns -1 if unreachable.
+    int steps(const int idx1, const int idx2) {
+        vector<vector<int>> visited(m, vector<int>(n));
+        queue<int> q;
+        q.push(idx1);
+        q.push(-1);
+        int dist = 0;
+        while (!q.empty()) {
+            int cur = q.front();
+            q.pop();
+            if (cur == idx2) {
+                return dist;
+            }
+            if (cur == -1) {
+                dist++;
+                if (!q.empty()) {
+                    q.push(-1);
+                }
+                continue;
+            }
+            int cur_i = cur / n, cur_j = cur % n;
+            if (visited[cur_i][cur_j] == 0 && forestMap[cur_i][cur_j] != 0) {
+                visited[cur_i][cur_j] = 1;
+                for (int i = 0; i < 4; ++i) {
+                    int next_i = cur_i + dir[i][0], next_j = cur_j + dir[i][1];
+                    if (next_i >= 0 && next_i < m && next_j >= 0 && next_j < n) {
+                        q.push(next_i * n + next_j);
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+};
